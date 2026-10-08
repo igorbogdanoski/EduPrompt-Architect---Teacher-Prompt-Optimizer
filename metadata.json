@@ -1,0 +1,6 @@
+{
+  "name": "EduPrompt Architect - Teacher Prompt Optimizer",
+  "description": "Professional educational prompt optimizer for primary and secondary school teachers, generating minimal JSON schemas and pedagogical chain-of-thought reasoning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
