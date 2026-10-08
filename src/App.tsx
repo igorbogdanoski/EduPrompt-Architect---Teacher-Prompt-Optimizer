@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Header } from './components/Header.tsx';
+import { Header, FontScale } from './components/Header.tsx';
 import { QuestionnaireForm } from './components/QuestionnaireForm.tsx';
 import { OutputConsole } from './components/OutputConsole.tsx';
 import { PresetsModal } from './components/PresetsModal.tsx';
@@ -18,6 +18,7 @@ import { TRANSLATIONS } from './constants/translations.ts';
 
 const LOCAL_STORAGE_KEY_PROMPTS = 'eduprompt_saved_library_v1';
 const LOCAL_STORAGE_KEY_LANG = 'eduprompt_language_preference';
+const LOCAL_STORAGE_KEY_FONTSCALE = 'eduprompt_font_scale_pref';
 
 const INITIAL_FORM_STATE: TeacherFormState = {
   subject: 'Математика',
@@ -54,14 +55,20 @@ export default function App() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isBloomsModalOpen, setIsBloomsModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [fontScale, setFontScale] = useState<FontScale>('comfort');
 
-  // Load language preference and saved prompts from local storage on mount
+  // Load language preference, font scale, and saved prompts from local storage on mount
   useEffect(() => {
     try {
       const savedLang = localStorage.getItem(LOCAL_STORAGE_KEY_LANG) as SupportedLanguage | null;
       if (savedLang === 'en' || savedLang === 'mk') {
         setLanguage(savedLang);
       }
+
+      const savedScale = localStorage.getItem(LOCAL_STORAGE_KEY_FONTSCALE) as FontScale | null;
+      const effectiveScale = savedScale || 'comfort';
+      setFontScale(effectiveScale);
+      document.documentElement.setAttribute('data-font-scale', effectiveScale);
 
       const rawSaved = localStorage.getItem(LOCAL_STORAGE_KEY_PROMPTS);
       if (rawSaved) {
@@ -86,6 +93,25 @@ export default function App() {
     setLanguage(lang);
     localStorage.setItem(LOCAL_STORAGE_KEY_LANG, lang);
     showToast(lang === 'mk' ? 'Јазикот е сменет на Македонски' : 'Language switched to English');
+  };
+
+  const handleFontScaleChange = (scale: FontScale) => {
+    setFontScale(scale);
+    localStorage.setItem(LOCAL_STORAGE_KEY_FONTSCALE, scale);
+    document.documentElement.setAttribute('data-font-scale', scale);
+    showToast(
+      language === 'mk'
+        ? scale === 'presentation'
+          ? 'Големина: Режим за Проектор / Презентација (125%)'
+          : scale === 'comfort'
+          ? 'Големина: Оптимално за 1080p монитори (110%)'
+          : 'Големина: Стандардна големина (100%)'
+        : scale === 'presentation'
+        ? 'Scale: Projector / Presentation mode (125%)'
+        : scale === 'comfort'
+        ? 'Scale: Comfortable for 1080p (110%)'
+        : 'Scale: Standard (100%)'
+    );
   };
 
   const handleFormChange = (updated: Partial<TeacherFormState>) => {
@@ -327,6 +353,8 @@ export default function App() {
         onOpenPresets={() => setIsPresetsOpen(true)}
         onOpenLibrary={() => setIsLibraryOpen(true)}
         onOpenBloomsGuide={() => setIsBloomsModalOpen(true)}
+        fontScale={fontScale}
+        onFontScaleChange={handleFontScaleChange}
         savedCount={savedPrompts.length}
       />
 

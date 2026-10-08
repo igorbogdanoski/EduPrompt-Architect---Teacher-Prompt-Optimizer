@@ -6,6 +6,26 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 17px; /* Comfortably enlarged default for 1080p screens */
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 17.5px; /* Optimal readability on 1080p desktop monitors */
+    }
+  }
+
+  /* Font size scale toggles for classroom presentation and high visibility */
+  html[data-font-scale="standard"] {
+    font-size: 15.5px !important;
+  }
+
+  html[data-font-scale="comfort"] {
+    font-size: 17.5px !important;
+  }
+
+  html[data-font-scale="presentation"] {
+    font-size: 19.5px !important;
   }
 
   body {
@@ -13,6 +33,7 @@
     color: #0f172a;
     background-color: #f8fafc;
     letter-spacing: -0.011em;
+    line-height: 1.55;
   }
 
   code, pre, kbd {

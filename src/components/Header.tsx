@@ -1,7 +1,9 @@
 import React from 'react';
-import { BookOpen, Bookmark, Sparkles, Globe, Layers, GraduationCap } from 'lucide-react';
+import { BookOpen, Bookmark, Sparkles, Globe, Layers, GraduationCap, Type } from 'lucide-react';
 import { SupportedLanguage } from '../types.ts';
 import { TRANSLATIONS } from '../constants/translations.ts';
+
+export type FontScale = 'standard' | 'comfort' | 'presentation';
 
 interface HeaderProps {
   language: SupportedLanguage;
@@ -10,6 +12,8 @@ interface HeaderProps {
   onOpenLibrary: () => void;
   savedCount: number;
   onOpenBloomsGuide?: () => void;
+  fontScale?: FontScale;
+  onFontScaleChange?: (scale: FontScale) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,8 +23,24 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenLibrary,
   savedCount,
   onOpenBloomsGuide,
+  fontScale = 'comfort',
+  onFontScaleChange,
 }) => {
   const t = TRANSLATIONS[language];
+  const isMk = language === 'mk';
+
+  const cycleFontScale = () => {
+    if (!onFontScaleChange) return;
+    if (fontScale === 'comfort') onFontScaleChange('presentation');
+    else if (fontScale === 'presentation') onFontScaleChange('standard');
+    else onFontScaleChange('comfort');
+  };
+
+  const getFontScaleLabel = () => {
+    if (fontScale === 'presentation') return isMk ? 'Проектор 125%' : 'Projector 125%';
+    if (fontScale === 'comfort') return isMk ? 'Текст 1080p' : 'Large 1080p';
+    return isMk ? 'Текст 100%' : 'Normal 100%';
+  };
 
   return (
     <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
@@ -84,6 +104,32 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             )}
           </button>
+
+          {/* Font Scale / Screen Visibility Toggle */}
+          {onFontScaleChange && (
+            <button
+              type="button"
+              onClick={cycleFontScale}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
+                fontScale === 'presentation'
+                  ? 'bg-amber-100 text-amber-900 border-amber-300 ring-1 ring-amber-400/40 shadow-2xs'
+                  : fontScale === 'comfort'
+                  ? 'bg-indigo-50 text-indigo-700 border-indigo-200 shadow-2xs'
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+              title={
+                isMk
+                  ? `Големина на текст: ${getFontScaleLabel()} (Кликнете за промена: 1080p -> Проектор -> Стандардно)`
+                  : `Font scale: ${getFontScaleLabel()} (Click to toggle: 1080p -> Projector -> Standard)`
+              }
+            >
+              <Type className="w-3.5 h-3.5 text-indigo-600" />
+              <span className="hidden sm:inline">{getFontScaleLabel()}</span>
+              <span className="sm:hidden font-mono text-[10px]">
+                {fontScale === 'presentation' ? '125%' : fontScale === 'comfort' ? '110%' : '100%'}
+              </span>
+            </button>
+          )}
 
           {/* Language Switcher */}
           <div className="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 text-xs">
